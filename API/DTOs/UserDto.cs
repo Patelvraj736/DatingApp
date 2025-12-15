@@ -10,7 +10,7 @@ public class UserDto
 
     public required string DisplayName { get; set; }
 
-    public string? ImagrUrl { get; set; } 
+    public string? ImageUrl { get; set; } 
 
     public required string Token { get; set;  }
 }

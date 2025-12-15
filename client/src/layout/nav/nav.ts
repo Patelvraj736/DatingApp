@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
-import { LoginCreds } from '../../types/user';
+import { LoginCreds, User } from '../../types/user';
 import { Router,RouterLink,RouterLinkActive } from '@angular/router';
 import { ToastService } from '../../core/services/toast-service';
+import { themes } from '../theme';
 
 @Component({
   selector: 'app-nav',
@@ -11,12 +12,33 @@ import { ToastService } from '../../core/services/toast-service';
   templateUrl: './nav.html',
   styleUrl: './nav.css'
 })
-export class Nav {
+export class Nav implements OnInit {
   protected accountService = inject(AccountService)
   protected router = inject(Router);
   private toast = inject(ToastService);
-
   protected creds = {} as LoginCreds;
+  protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
+  protected themes = themes;
+  user: User | null=null;
+  
+  handleSelectTheme(theme: string){
+    this.selectedTheme.set(theme);
+    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    const elem = document.activeElement as HTMLDivElement;
+    if(elem){
+      elem.blur();
+    }
+  }
+  constructor() {
+
+    effect(() => {
+      this.user = this.accountService.currentUser();
+    });
+  }
+ ngOnInit(): void {
+    document.documentElement.setAttribute('data-theme', this.selectedTheme());
+  }
 
   login(){
     this.accountService.login(this.creds).subscribe({
