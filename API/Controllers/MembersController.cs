@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using API.Extensions;
 using API.Services;
+using API.Helper;
 
 
 namespace API.Controllers
@@ -15,9 +16,10 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers()
+        public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers([FromQuery]MemberParams memberParams)
         {
-            return Ok(await memberRepository.GetMembersAsync());
+            memberParams.CurrentMemberId = User.GetMemberId();
+            return Ok(await memberRepository.GetMembersAsync(memberParams));
 
         }
         [HttpGet("{id}")]
